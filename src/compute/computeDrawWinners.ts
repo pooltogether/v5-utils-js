@@ -1,10 +1,28 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { Provider } from "@ethersproject/providers";
 
-import { computePicksPrizes } from "./computePicksPrizes";
-import { DrawResults } from "../types";
-import { updateDrawResultsWithWinningPicks } from "../utils";
+import { getSubgraphVaults } from "../utils/getSubgraphVaults";
+import { getWinners } from "../utils/getWinners";
+import { ContractsBlob, ClaimPrizeContext, Claim } from "../types";
 
-export function computeDrawWinners(chainId: number, prizePool: string): DrawResults {
-  const pickPrizes = computePicksPrizes(chainId, prizePool);
-  return updateDrawResultsWithWinningPicks(pickPrizes, createDrawResultsObject(draw.drawId), picks);
+/**
+ * Finds out which of the accounts in each vault are winners for the last draw and formats
+ * them into an array Claim objects
+ *
+ * @returns {Promise} Promise of an array of Claim objects
+ */
+export async function computeDrawWinners(
+  provider: Provider,
+  contracts: ContractsBlob,
+  chainId: number,
+  context: ClaimPrizeContext
+): Promise<Claim[]> {
+  const vaults = await getSubgraphVaults(chainId);
+  if (vaults.length === 0) {
+    throw new Error("Claimer: No vaults found in subgraph");
+  }
+
+  // OPTIMIZE: Make sure user has balance before adding them to the read multicall
+  const claims: Claim[] = await getWinners(provider, contracts, vaults, context);
+
+  return claims;
 }

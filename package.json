@@ -3,7 +3,7 @@
     "description": "Utility library for PoolTogether V5 off-chain computations.",
     "author": "PoolTogether Inc",
     "license": "GPL-3.0-only",
-    "version": "0.1.7",
+    "version": "0.0.1-beta.1",
     "homepage": "https://github.com/pooltogether/v5-utils-js",
     "bugs": {
         "url": "https://github.com/pooltogether/issues",
@@ -36,7 +36,9 @@
     "peerDependencies": {},
     "dependencies": {
         "@pooltogether/contract-list-schema": "^0.1.4",
+        "ethereum-multicall": "^2.17.0",
         "ethers": "^5.5.1",
+        "graphql-request": "^6.0.0",
         "lodash": "^4.17.21"
     },
     "devDependencies": {
@@ -44,21 +46,9 @@
         "debug": "^4.3.2",
         "replace-in-files": "^3.0.0",
         "tsdx": "^0.14.1",
-        "tslib": "^2.3.1",
+        "tslib": "^2.5.0",
         "typedoc": "^0.22.10",
         "typedoc-plugin-markdown": "^3.11.8",
         "typescript": "^4.4.4"
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "tsdx lint --fix"
-        }
-    },
-    "prettier": {
-        "printWidth": 80,
-        "semi": true,
-        "singleQuote": true,
-        "tabWidth": 4,
-        "trailingComma": "es5"
     }
 }
