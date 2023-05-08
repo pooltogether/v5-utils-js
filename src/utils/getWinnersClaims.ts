@@ -12,7 +12,7 @@ import { getComplexMulticallResults } from "./multicall";
  * @param tiersArray an easily iterable range of numbers for each tier available (ie. [0, 1, 2])
  * @returns
  */
-export const getWinners = async (
+export const getWinnersClaims = async (
   readProvider: Provider,
   contracts: ContractsBlob,
   vaults: Vault[],
@@ -80,22 +80,5 @@ const getClaims = (
     }
   });
 
-  logClaims(claims, context);
-
   return claims;
-};
-
-const logClaims = (claims: Claim[], context: ClaimPrizeContext) => {
-  const tiersArray = context.tiers.rangeArray;
-
-  let tierClaimsFiltered: { [index: number]: Claim[] } = {};
-  tiersArray.forEach(tierNum => {
-    tierClaimsFiltered[tierNum] = claims.filter(claim => claim.tier === tierNum);
-  });
-
-  tiersArray.forEach(tierNum => {
-    const tierClaims = tierClaimsFiltered[tierNum];
-    const tierWord = tiersArray.length - 1 === tierNum ? `${tierNum} (canary)` : `${tierNum}`;
-    console.table({ Tier: { "#": tierWord, "# of Winners": tierClaims.length } });
-  });
 };

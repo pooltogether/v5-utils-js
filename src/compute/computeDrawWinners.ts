@@ -1,7 +1,7 @@
 import { Provider } from "@ethersproject/providers";
 
 import { getSubgraphVaults } from "../utils/getSubgraphVaults";
-import { getWinners } from "../utils/getWinners";
+import { getWinnersClaims } from "../utils/getWinnersClaims";
 import { ContractsBlob, ClaimPrizeContext, Claim } from "../types";
 
 /**
@@ -22,7 +22,6 @@ export async function computeDrawWinners(
   }
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall
-  const claims: Claim[] = await getWinners(provider, contracts, vaults, context);
-
+  const claims: Claim[] = await getWinnersClaims(provider, contracts, vaults, context);
   return claims;
 }
