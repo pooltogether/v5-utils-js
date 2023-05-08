@@ -1,7 +1,7 @@
 import { Provider } from "@ethersproject/providers";
 import { ContractCallContext } from "ethereum-multicall";
 
-import { MulticallResults, Claim, ClaimPrizeContext, ContractsBlob, Vault } from "../types";
+import { MulticallResults, Claim, ClaimContext, ContractsBlob, Vault } from "../types";
 import { getComplexMulticallResults } from "./multicall";
 
 /**
@@ -16,7 +16,7 @@ export const getWinnersClaims = async (
   readProvider: Provider,
   contracts: ContractsBlob,
   vaults: Vault[],
-  context: ClaimPrizeContext
+  context: ClaimContext
 ): Promise<Claim[]> => {
   const tiersArray = context.tiers.rangeArray;
 
@@ -58,14 +58,10 @@ export const getWinnersClaims = async (
   );
 
   // Builds the array of claims
-  return getClaims(prizePoolAddress, multicallResults, context);
+  return getClaims(prizePoolAddress, multicallResults);
 };
 
-const getClaims = (
-  prizePoolAddress: string,
-  multicallResults: MulticallResults,
-  context: ClaimPrizeContext
-): Claim[] => {
+const getClaims = (prizePoolAddress: string, multicallResults: MulticallResults): Claim[] => {
   const claims: Claim[] = [];
 
   Object.entries(multicallResults[prizePoolAddress]).forEach(vaultUserTierResult => {

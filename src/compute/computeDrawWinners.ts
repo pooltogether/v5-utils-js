@@ -2,7 +2,7 @@ import { Provider } from "@ethersproject/providers";
 
 import { getSubgraphVaults } from "../utils/getSubgraphVaults";
 import { getWinnersClaims } from "../utils/getWinnersClaims";
-import { ContractsBlob, ClaimPrizeContext, Claim } from "../types";
+import { ContractsBlob, ClaimContext, Claim } from "../types";
 
 /**
  * Finds out which of the accounts in each vault are winners for the last draw and formats
@@ -14,7 +14,7 @@ export async function computeDrawWinners(
   provider: Provider,
   contracts: ContractsBlob,
   chainId: number,
-  context: ClaimPrizeContext
+  context: ClaimContext
 ): Promise<Claim[]> {
   const vaults = await getSubgraphVaults(chainId);
   if (vaults.length === 0) {

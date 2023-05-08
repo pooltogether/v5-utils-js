@@ -51,7 +51,7 @@ export interface TiersContext {
   rangeArray: number[];
 }
 
-export interface ClaimPrizeContext {
+export interface ClaimContext {
   drawId: string;
   tiers: TiersContext;
 }
@@ -65,10 +65,6 @@ export interface Claim {
   vault: string;
   winner: string;
   tier: number;
-}
-
-export interface PrizeClaimerConfigParams {
-  chainId: number;
 }
 
 export interface MulticallResults {
