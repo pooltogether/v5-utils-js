@@ -44,7 +44,7 @@
         "debug": "^4.3.2",
         "replace-in-files": "^3.0.0",
         "tsdx": "^0.14.1",
-        "tslib": "^2.3.1",
+        "tslib": "^2.5.0",
         "typedoc": "^0.22.10",
         "typedoc-plugin-markdown": "^3.11.8",
         "typescript": "^4.4.4"
