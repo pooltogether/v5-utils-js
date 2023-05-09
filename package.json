@@ -15,6 +15,7 @@
     "module": "dist/v5-utils-js.esm.js",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
+    "type": "module",
     "files": [
         "dist",
         "src"
@@ -32,6 +33,7 @@
         "@pooltogether/contract-list-schema": "^0.1.4",
         "ethereum-multicall": "^2.17.0",
         "ethers": "^5.5.1",
+        "graphql": "^16.6.0",
         "graphql-request": "^6.0.0",
         "lodash": "^4.17.21",
         "tsc": "^2.0.4",
