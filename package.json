@@ -3,7 +3,7 @@
     "description": "Utility library for PoolTogether V5 off-chain computations.",
     "author": "PoolTogether Inc",
     "license": "GPL-3.0-only",
-    "version": "0.0.1-beta.2",
+    "version": "0.0.1-beta.3",
     "homepage": "https://github.com/pooltogether/v5-utils-js",
     "bugs": {
         "url": "https://github.com/pooltogether/issues",
