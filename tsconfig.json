@@ -1,12 +1,20 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types"],
+  "include": [
+    "./src", 
+    "types"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
   "typedocOptions": {
       "entryPoints": ["./src/index.ts"],
       "out": "docs",
       "readme": "DOCUMENTATION.md",
   },
   "compilerOptions": {
+    "outDir": "./dist",
     "resolveJsonModule": true,
     "module": "esnext",
     "lib": ["dom", "esnext"],
@@ -34,8 +42,6 @@
     // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
     "skipLibCheck": true,
     // error out if import and file system have a casing mismatch. Recommended by TS
-    "forceConsistentCasingInFileNames": true,
-    // `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
-    "noEmit": true,
+    "forceConsistentCasingInFileNames": true
   }
 }
