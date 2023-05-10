@@ -27,7 +27,7 @@ export const getSubgraphVaults = async (chainId: number): Promise<Vault[]> => {
   const query = vaultsQuery();
 
   // @ts-ignore: ignore types from GraphQL client lib
-  const vaultsResponse: any = await client.request(query).catch(e => {
+  const vaultsResponse: any = await client.request(query).catch((e) => {
     console.error(e.message);
     throw e;
   });

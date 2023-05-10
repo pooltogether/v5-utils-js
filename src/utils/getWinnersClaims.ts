@@ -19,23 +19,27 @@ export const getWinnersClaims = async (
   context: ClaimContext
 ): Promise<Claim[]> => {
   const tiersArray = context.tiers.rangeArray;
+  // tiersArray.pop();
+  // tiersArray.pop();
 
-  const prizePoolContractBlob = contracts.contracts.find(contract => contract.type === "PrizePool");
+  const prizePoolContractBlob = contracts.contracts.find(
+    (contract) => contract.type === "PrizePool"
+  );
   if (!prizePoolContractBlob) {
     throw new Error("Contracts: No prize pool found in provided contracts blob");
   }
 
   const calls: ContractCallContext["calls"] = [];
 
-  vaults.forEach(vault => {
-    vault.accounts.forEach(account => {
+  vaults.forEach((vault) => {
+    vault.accounts.forEach((account) => {
       const address = account.id.split("-")[1];
 
-      tiersArray.forEach(tierNum => {
+      tiersArray.forEach((tierNum) => {
         calls.push({
           reference: `${vault.id}-${address}-${tierNum}`,
           methodName: "isWinner",
-          methodParameters: [vault.id, address, tierNum]
+          methodParameters: [vault.id, address, tierNum],
         });
       });
     });
@@ -48,8 +52,8 @@ export const getWinnersClaims = async (
       reference: prizePoolAddress,
       contractAddress: prizePoolAddress,
       abi: prizePoolContractBlob.abi,
-      calls
-    }
+      calls,
+    },
   ];
 
   const multicallResults: MulticallResults = await getComplexMulticallResults(
@@ -64,7 +68,7 @@ export const getWinnersClaims = async (
 const getClaims = (prizePoolAddress: string, multicallResults: MulticallResults): Claim[] => {
   const claims: Claim[] = [];
 
-  Object.entries(multicallResults[prizePoolAddress]).forEach(vaultUserTierResult => {
+  Object.entries(multicallResults[prizePoolAddress]).forEach((vaultUserTierResult) => {
     const key = vaultUserTierResult[0];
     const value = vaultUserTierResult[1];
     const isWinner = value[0];
