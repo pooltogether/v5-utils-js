@@ -1,1 +1,1 @@
-export * from "./testnetContractsBlob";
+export { testnetContractsBlob } from "./testnetContractsBlob";
