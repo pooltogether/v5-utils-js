@@ -2,7 +2,7 @@ import { Provider } from "@ethersproject/providers";
 
 import { getSubgraphVaults } from "../utils/getSubgraphVaults";
 import { getWinnersClaims } from "../utils/getWinnersClaims";
-import { ContractsBlob, ClaimContext, Claim } from "../types";
+import { ContractsBlob, Claim } from "../types";
 
 /**
  * Finds out which of the accounts in each vault are winners for the last draw and formats
@@ -14,7 +14,7 @@ export async function computeDrawWinners(
   provider: Provider,
   contracts: ContractsBlob,
   chainId: number,
-  context: ClaimContext
+  tiersArray: number[]
 ): Promise<Claim[]> {
   const vaults = await getSubgraphVaults(chainId);
   if (vaults.length === 0) {
@@ -22,6 +22,6 @@ export async function computeDrawWinners(
   }
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall
-  const claims: Claim[] = await getWinnersClaims(provider, contracts, vaults, context);
+  const claims: Claim[] = await getWinnersClaims(provider, contracts, vaults, tiersArray);
   return claims;
 }
