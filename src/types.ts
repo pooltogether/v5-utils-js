@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 export interface TokenData {
   chainId: number;
   address: string;
@@ -61,4 +63,8 @@ export interface MulticallResults {
   [contractAddress: string]: {
     [reference: string]: any[];
   };
+}
+
+export interface Amounts {
+  [tier: string]: BigNumber;
 }
