@@ -12,10 +12,8 @@
     "engines": {
         "node": ">=10"
     },
-    "module": "dist/v5-utils-js.esm.js",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
-    "type": "module",
     "files": [
         "dist",
         "src"

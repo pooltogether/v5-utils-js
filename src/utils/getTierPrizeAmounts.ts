@@ -53,7 +53,7 @@ export const getTierPrizeAmounts = async (
 };
 
 const getTierAmounts = (prizePoolAddress: string, multicallResults: MulticallResults): Amounts => {
-  const amounts = {};
+  const amounts: Amounts = {};
 
   Object.entries(multicallResults[prizePoolAddress]).forEach((tierResult) => {
     const [key, value] = tierResult;
