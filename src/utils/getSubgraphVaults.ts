@@ -32,9 +32,7 @@ export const getSubgraphVaults = async (chainId: number): Promise<Vault[]> => {
     throw e;
   });
 
-  const vaults = vaultsResponse?.vaults;
-
-  return vaults;
+  return vaultsResponse?.vaults || [];
 };
 
 const vaultsQuery = () => {

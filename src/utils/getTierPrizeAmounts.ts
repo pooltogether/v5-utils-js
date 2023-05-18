@@ -57,7 +57,6 @@ const getTierAmounts = (prizePoolAddress: string, multicallResults: MulticallRes
 
   Object.entries(multicallResults[prizePoolAddress]).forEach((tierResult) => {
     const [key, value] = tierResult;
-
     amounts[key] = value[0];
   });
 

@@ -68,3 +68,10 @@ export interface MulticallResults {
 export interface Amounts {
   [tier: string]: BigNumber;
 }
+
+export interface ClaimedPrize {
+  id: string;
+  payout: string;
+  fee: string;
+  timestamp: string;
+}
