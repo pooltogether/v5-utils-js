@@ -343,7 +343,7 @@ const liquidationPairAbi = [
   },
 ];
 
-export const testnetContractsBlob: ContractsBlob = {
+export const testnetContractsBlobMumbai: ContractsBlob = {
   name: "Hyperstructure Testnet",
   version: {
     major: 1,

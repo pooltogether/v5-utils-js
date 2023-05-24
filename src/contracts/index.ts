@@ -1,1 +1,2 @@
-export { testnetContractsBlob } from "./testnetContractsBlob";
+export { testnetContractsBlobSepolia } from "./testnetContractsBlobSepolia";
+export { testnetContractsBlobMumbai } from "./testnetContractsBlobMumbai";
