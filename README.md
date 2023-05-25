@@ -6,13 +6,13 @@
 
 <br />
 
-# 🧰 Javascript Utilility Library - PoolTogether V5
+# 🧰 Javascript Utility Library - PoolTogether V5
 
-[Documentation](https://docs.pooltogether.com/) | [Static Cache](https://github.com/pooltogether/v5-draw-results)
+[Documentation](https://docs.pooltogether.com/)
 
 ## Calculations, Computations and Core Logic
 
-The `@pooltogether/v5-utils-js` [node module package](https://www.npmjs.com/package/@pooltogether/v5-utils-js) provides computations for the PoolTogether V5 protocol.
+The `@pooltogether/v5-utils-js` [node module package](https://www.npmjs.com/package/@pooltogether/v5-utils-js) provides computations for the PoolTogether v5 protocol.
 
 High-order operations like processing subgraphs and chain state (draws, winners, etc..) is included in the `computations` namespaced functions.
 
@@ -42,21 +42,34 @@ The repo can be cloned from Github for contributions.
 git clone https://github.com/pooltogether/v5-utils-js
 ```
 
+# 🏆 Quickstart (Contracts Blob)
+
+Getting the list of contracts for a specific network is easy using the `downloadContractsBlob(chainId)` function.
+
+Currently supports:
+
+- Sepolia (testnet)
+- Mumbai (testnet)
+- Goerli (testnet) (outdated!)
+
+```ts
+import { downloadContractsBlob } from "@pooltogether/v5-utils-js";
+
+async function main() {
+  const contracts = await downloadContractsBlob(chainId);
+}
+main();
+```
+
 # 🏆 Quickstart (Draw Results)
 
 Functions like `computeDrawWinners(chainId, prizePool)` compute and return JSON of winners for each tier of a prize pool, grouped by vault.
 
 ```ts
-import { computeDrawWinners } from '@pooltogether/v5-utils-js';
+import { computeDrawWinners } from "@pooltogether/v5-utils-js";
 
 // Compute Winners for the last Draw (where prizePool is the address)
 const winners = computeDrawWinners(chainId, prizePool);
-
-// Returns:
-
-/**
-{}
-* /
 ```
 
 # 📖 Documentation
