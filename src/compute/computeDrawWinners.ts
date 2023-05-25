@@ -1,8 +1,8 @@
-import { Provider } from "@ethersproject/providers";
+import { Provider } from '@ethersproject/providers';
 
-import { getSubgraphVaults } from "../utils/getSubgraphVaults";
-import { getWinnersClaims } from "../utils/getWinnersClaims";
-import { ContractsBlob, Claim } from "../types";
+import { getSubgraphVaults } from '../utils/getSubgraphVaults';
+import { getWinnersClaims } from '../utils/getWinnersClaims';
+import { ContractsBlob, Claim } from '../types';
 
 /**
  * Finds out which of the accounts in each vault are winners for the last draw and formats
@@ -14,11 +14,11 @@ export async function computeDrawWinners(
   provider: Provider,
   contracts: ContractsBlob,
   chainId: number,
-  tiersArray: number[]
+  tiersArray: number[],
 ): Promise<Claim[]> {
   const vaults = await getSubgraphVaults(chainId);
   if (vaults.length === 0) {
-    throw new Error("Claimer: No vaults found in subgraph");
+    throw new Error('Claimer: No vaults found in subgraph');
   }
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall

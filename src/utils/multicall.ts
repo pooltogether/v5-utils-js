@@ -1,7 +1,7 @@
-import { ContractCallContext, Multicall } from "ethereum-multicall";
-import { ContractCallResults } from "ethereum-multicall/dist/esm/models";
-import { Provider } from "@ethersproject/providers";
-import { utils } from "ethers";
+import { ContractCallContext, Multicall } from 'ethereum-multicall';
+import { ContractCallResults } from 'ethereum-multicall/dist/esm/models';
+import { Provider } from '@ethersproject/providers';
+import { utils } from 'ethers';
 
 /**
  * Returns the results of a multicall where each call is made to every contract address provided
@@ -14,25 +14,25 @@ import { utils } from "ethers";
 export const getMulticallResults = async (
   readProvider: Provider,
   contractAddresses: string[],
-  abi: ContractCallContext["abi"],
-  calls: ContractCallContext["calls"]
+  abi: ContractCallContext['abi'],
+  calls: ContractCallContext['calls'],
 ): Promise<{
   [contractAddress: string]: {
     [reference: string]: any[];
   };
 }> => {
-  const validAddresses = contractAddresses.every(address => utils.isAddress(address));
+  const validAddresses = contractAddresses.every((address) => utils.isAddress(address));
   if (contractAddresses.length === 0 || !validAddresses || calls.length === 0) {
-    throw new Error("Multicall Error: Invalid parameters");
+    throw new Error('Multicall Error: Invalid parameters');
   }
 
   const chainId = (await readProvider.getNetwork())?.chainId;
   if (!chainId) {
-    throw new Error("Multicall Error: Could not get chainId from provider");
+    throw new Error('Multicall Error: Could not get chainId from provider');
   }
 
   const queries: ContractCallContext[] = [];
-  contractAddresses.forEach(contractAddress => {
+  contractAddresses.forEach((contractAddress) => {
     queries.push({ reference: contractAddress, contractAddress, abi, calls });
   });
 
@@ -40,9 +40,9 @@ export const getMulticallResults = async (
   const response: ContractCallResults = await multicall.call(queries);
 
   const formattedResults: { [contractAddress: string]: { [reference: string]: any[] } } = {};
-  contractAddresses.forEach(contractAddress => {
+  contractAddresses.forEach((contractAddress) => {
     formattedResults[contractAddress] = {};
-    response.results[contractAddress].callsReturnContext.forEach(result => {
+    response.results[contractAddress].callsReturnContext.forEach((result) => {
       formattedResults[contractAddress][result.reference] = result.returnValues;
     });
   });
@@ -58,31 +58,31 @@ export const getMulticallResults = async (
  */
 export const getComplexMulticallResults = async (
   readProvider: Provider,
-  queries: ContractCallContext[]
+  queries: ContractCallContext[],
 ): Promise<{
   [contractAddress: string]: {
     [reference: string]: any[];
   };
 }> => {
-  const validAddresses = queries.every(query => utils.isAddress(query.contractAddress));
+  const validAddresses = queries.every((query) => utils.isAddress(query.contractAddress));
   if (queries.length === 0 || !validAddresses) {
-    throw new Error("Multicall Error: Invalid parameters");
+    throw new Error('Multicall Error: Invalid parameters');
   }
 
   const chainId = (await readProvider.getNetwork())?.chainId;
   if (!chainId) {
-    throw new Error("Multicall Error: Could not get chainId from provider");
+    throw new Error('Multicall Error: Could not get chainId from provider');
   }
 
   const multicall = new Multicall({ ethersProvider: readProvider, tryAggregate: true });
   const response: ContractCallResults = await multicall.call(queries);
 
   const formattedResults: { [contractAddress: string]: { [reference: string]: any[] } } = {};
-  queries.forEach(query => {
+  queries.forEach((query) => {
     if (formattedResults[query.contractAddress] === undefined) {
       formattedResults[query.contractAddress] = {};
     }
-    response.results[query.reference].callsReturnContext.forEach(result => {
+    response.results[query.reference].callsReturnContext.forEach((result) => {
       formattedResults[query.contractAddress][result.reference] = result.returnValues;
     });
   });

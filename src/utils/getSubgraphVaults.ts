@@ -1,7 +1,7 @@
-import { gql, GraphQLClient } from "graphql-request";
+import { gql, GraphQLClient } from 'graphql-request';
 
-import { TWAB_CONTROLLER_SUBGRAPH_URIS } from "./constants";
-import { Vault } from "../types";
+import { TWAB_CONTROLLER_SUBGRAPH_URIS } from './constants';
+import { Vault } from '../types';
 
 /**
  * Subgraphs to query for depositors

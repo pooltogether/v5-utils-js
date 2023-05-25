@@ -1,6 +1,6 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
-import { ContractsBlob } from "../types";
+import { ContractsBlob } from '../types';
 
 // Returns all the contracts that match the params by name, chain, and contract version
 export function getContracts(
@@ -12,7 +12,7 @@ export function getContracts(
     major: 1,
     minor: 0,
     patch: 0,
-  }
+  },
 ): ethers.Contract[] {
   if (!name || !chainId) throw new Error(`Invalid Contract Parameters`);
 
@@ -30,7 +30,7 @@ export function getContracts(
 
   if (contractsArray.length === 0) {
     throw new Error(
-      `Multiple Contracts Unavailable: ${name} on chainId: ${chainId}. Contract version: ${version.major}.${version.minor}.${version.patch}`
+      `Multiple Contracts Unavailable: ${name} on chainId: ${chainId}. Contract version: ${version.major}.${version.minor}.${version.patch}`,
     );
   } else {
     return contractsArray;

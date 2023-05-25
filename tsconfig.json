@@ -1,9 +1,9 @@
 {
   "include": ["src", "types"],
   "typedocOptions": {
-      "entryPoints": ["./src/index.ts"],
-      "out": "docs",
-      "readme": "DOCUMENTATION.md",
+    "entryPoints": ["./src/index.ts"],
+    "out": "docs",
+    "readme": "DOCUMENTATION.md"
   },
   "compilerOptions": {
     "declaration": true,
@@ -15,6 +15,6 @@
     "target": "esnext",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   }
 }

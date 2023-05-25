@@ -1,7 +1,7 @@
-import { gql, GraphQLClient } from "graphql-request";
+import { gql, GraphQLClient } from 'graphql-request';
 
-import { PRIZE_POOL_SUBGRAPH_URIS } from "./constants";
-import { ClaimedPrize } from "../types";
+import { PRIZE_POOL_SUBGRAPH_URIS } from './constants';
+import { ClaimedPrize } from '../types';
 
 /**
  * Subgraphs to query for depositors
@@ -23,7 +23,7 @@ export const getPrizePoolSubgraphClient = (chainId: number) => {
  */
 export const getSubgraphClaimedPrizes = async (
   chainId: number,
-  drawId: string
+  drawId: string,
 ): Promise<ClaimedPrize[]> => {
   const client = getPrizePoolSubgraphClient(chainId);
 

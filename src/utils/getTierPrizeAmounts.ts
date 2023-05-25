@@ -1,8 +1,8 @@
-import { Provider } from "@ethersproject/providers";
-import { ContractCallContext } from "ethereum-multicall";
+import { Provider } from '@ethersproject/providers';
+import { ContractCallContext } from 'ethereum-multicall';
 
-import { MulticallResults, ContractsBlob, Amounts } from "../types";
-import { getComplexMulticallResults } from "./multicall";
+import { MulticallResults, ContractsBlob, Amounts } from '../types';
+import { getComplexMulticallResults } from './multicall';
 
 /**
  * Returns tier prize amounts
@@ -14,23 +14,23 @@ import { getComplexMulticallResults } from "./multicall";
 export const getTierPrizeAmounts = async (
   readProvider: Provider,
   contracts: ContractsBlob,
-  tiersArray: number[]
+  tiersArray: number[],
 ): Promise<Amounts> => {
   const prizePoolContractBlob = contracts.contracts.find(
-    (contract) => contract.type === "PrizePool"
+    (contract) => contract.type === 'PrizePool',
   );
   if (!prizePoolContractBlob) {
-    throw new Error("Contracts: No prize pool found in provided contracts blob");
+    throw new Error('Contracts: No prize pool found in provided contracts blob');
   }
 
   const prizePoolAddress: string | undefined = prizePoolContractBlob?.address;
 
-  const calls: ContractCallContext["calls"] = [];
+  const calls: ContractCallContext['calls'] = [];
 
   tiersArray.forEach((tierNum) => {
     calls.push({
       reference: `${tierNum}`,
-      methodName: "calculatePrizeSize",
+      methodName: 'calculatePrizeSize',
       methodParameters: [tierNum],
     });
   });
@@ -46,7 +46,7 @@ export const getTierPrizeAmounts = async (
 
   const multicallResults: MulticallResults = await getComplexMulticallResults(
     readProvider,
-    queries
+    queries,
   );
 
   return getTierAmounts(prizePoolAddress, multicallResults);
