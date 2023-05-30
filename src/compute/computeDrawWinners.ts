@@ -21,7 +21,9 @@ export async function computeDrawWinners(
     throw new Error('Claimer: No vaults found in subgraph');
   }
 
-  // OPTIMIZE: Make sure user has balance before adding them to the read multicall
-  const claims: Claim[] = await getWinnersClaims(provider, contracts, vaults, tiersArray);
+  const claims: Claim[] = await getWinnersClaims(provider, contracts, vaults, tiersArray, {
+    filterAutoClaimDisabled: false,
+  });
+
   return claims;
 }

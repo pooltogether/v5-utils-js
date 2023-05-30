@@ -1,8 +1,13 @@
 import { Provider } from '@ethersproject/providers';
 import { ContractCallContext } from 'ethereum-multicall';
+import * as _ from 'lodash';
 
-import { MulticallResults, Claim, ContractsBlob, Vault } from '../types';
+import { MulticallResults, ContractData, Claim, ContractsBlob, Vault } from '../types';
 import { getComplexMulticallResults } from './multicall';
+
+interface GetWinnersClaimsOptions {
+  filterAutoClaimDisabled: boolean;
+}
 
 /**
  * Returns claims
@@ -17,16 +22,13 @@ export const getWinnersClaims = async (
   contracts: ContractsBlob,
   vaults: Vault[],
   tiersArray: number[],
+  options: GetWinnersClaimsOptions,
 ): Promise<Claim[]> => {
-  const prizePoolContractBlob = contracts.contracts.find(
-    (contract) => contract.type === 'PrizePool',
-  );
-  if (!prizePoolContractBlob) {
-    throw new Error('Contracts: No prize pool found in provided contracts blob');
-  }
+  const prizePoolContractBlob = findPrizePoolInContracts(contracts);
 
   const calls: ContractCallContext['calls'] = [];
 
+  // OPTIMIZE: Make sure user has balance before adding them to the read multicall
   vaults.forEach((vault) => {
     vault.accounts.forEach((account) => {
       const address = account.id.split('-')[1];
@@ -58,7 +60,19 @@ export const getWinnersClaims = async (
   );
 
   // Builds the array of claims
-  return getClaims(prizePoolAddress, multicallResults);
+  let claims = getClaims(prizePoolAddress, multicallResults);
+
+  // Filters out claims that don't have autoClaim enabled
+  if (options.filterAutoClaimDisabled) {
+    claims = await filterAutoClaimDisabledForClaims(readProvider, contracts, claims);
+  }
+
+  // TODO: Actually filter
+  // Filters out claims from vaults where the Claimer isn't the claimer
+  // (see more on this in the Vault.sol contract guards for `claimPrize()`)
+  // claims = filterVaultIsNotClaimer(claims);
+
+  return claims;
 };
 
 const getClaims = (prizePoolAddress: string, multicallResults: MulticallResults): Claim[] => {
@@ -77,4 +91,80 @@ const getClaims = (prizePoolAddress: string, multicallResults: MulticallResults)
   });
 
   return claims;
+};
+
+const filterAutoClaimDisabledForClaims = async (
+  readProvider: Provider,
+  contracts: ContractsBlob,
+  claims: Claim[],
+): Promise<Claim[]> => {
+  const claimsGroupedByVault = _.groupBy(claims, (claim: Claim) => claim.vault);
+
+  // Compile list of Vault contracts to query and calls within
+  const queries: ContractCallContext[] = [];
+  for (const vault of Object.entries(claimsGroupedByVault)) {
+    const [key, value] = vault;
+    const vaultAddress = key;
+    const vaultClaims = value;
+
+    const vaultContractBlob = findVaultContractBlobInContracts(contracts, vaultAddress);
+
+    const calls: ContractCallContext['calls'] = [];
+    for (const claim of vaultClaims) {
+      const { winner, tier } = claim;
+
+      calls.push({
+        reference: `${vaultAddress}-${winner}-${tier}`,
+        methodName: 'autoClaimDisabled',
+        methodParameters: [winner],
+      });
+    }
+
+    queries.push({
+      reference: vaultAddress,
+      contractAddress: vaultAddress,
+      abi: vaultContractBlob.abi,
+      calls,
+    });
+  }
+
+  const multicallResults: MulticallResults = await getComplexMulticallResults(
+    readProvider,
+    queries,
+  );
+
+  // Actually filter the original claims with the claims where auto-claim has been disabled
+  claims = claims.filter((claim: Claim) => {
+    const { vault, winner, tier } = claim;
+    const compositeKey = `${vault}-${winner}-${tier}`;
+
+    return !multicallResults[vault][compositeKey][0];
+  });
+
+  return claims;
+};
+
+const findPrizePoolInContracts = (contracts: ContractsBlob) => {
+  const prizePoolContractBlob = contracts.contracts.find(
+    (contract) => contract.type === 'PrizePool',
+  );
+  if (!prizePoolContractBlob) {
+    throw new Error('Contracts: No prize pool found in provided contracts blob');
+  }
+
+  return prizePoolContractBlob;
+};
+
+const findVaultContractBlobInContracts = (contracts: ContractsBlob, vaultAddress: string) => {
+  const vaultContractBlob = contracts.contracts.find(
+    (contract: ContractData) =>
+      contract.type === 'Vault' && contract.address.toLowerCase() === vaultAddress.toLowerCase(),
+  );
+  if (!vaultContractBlob) {
+    throw new Error(
+      `Contracts: No vault found in provided contracts blob with address: ${vaultAddress}`,
+    );
+  }
+
+  return vaultContractBlob;
 };
