@@ -67,10 +67,13 @@ export const getWinnersClaims = async (
     claims = await filterAutoClaimDisabledForClaims(readProvider, contracts, claims);
   }
 
-  // TODO: Actually filter
-  // Filters out claims from vaults where the Claimer isn't the claimer
+  // TODO: Sounds like this won't be a feature on mainnet so going to punt on it for now:
+  //
+  // Filters out claims from vaults where the Claimer contract isn't the Vault.claimer()
   // (see more on this in the Vault.sol contract guards for `claimPrize()`)
-  // claims = filterVaultIsNotClaimer(claims);
+  // if (options.filterNonClaimerVaults) {
+  //   claims = filterVaultIsNotClaimer(claims);
+  // }
 
   return claims;
 };
