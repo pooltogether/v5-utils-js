@@ -101,6 +101,10 @@ const filterAutoClaimDisabledForClaims = async (
   contracts: ContractsBlob,
   claims: Claim[],
 ): Promise<Claim[]> => {
+  if (claims.length === 0) {
+    return claims;
+  }
+
   const claimsGroupedByVault = _.groupBy(claims, (claim: Claim) => claim.vault);
 
   // Compile list of Vault contracts to query and calls within
