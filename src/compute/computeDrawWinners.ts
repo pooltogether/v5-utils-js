@@ -1,6 +1,6 @@
 import { Provider } from '@ethersproject/providers';
 
-import { getSubgraphVaults } from '../utils/getSubgraphVaults';
+import { getSubgraphVaults, populateSubgraphVaultAccounts } from '../utils/getSubgraphVaults';
 import { getWinnersClaims } from '../utils/getWinnersClaims';
 import { ContractsBlob, Claim } from '../types';
 
@@ -16,10 +16,13 @@ export async function computeDrawWinners(
   chainId: number,
   tiersArray: number[],
 ): Promise<Claim[]> {
-  const vaults = await getSubgraphVaults(chainId);
+  let vaults = await getSubgraphVaults(chainId);
   if (vaults.length === 0) {
     throw new Error('Claimer: No vaults found in subgraph');
   }
+
+  // Page through and concat all accounts for all vaults
+  vaults = await populateSubgraphVaultAccounts(chainId, vaults);
 
   const claims: Claim[] = await getWinnersClaims(provider, contracts, vaults, tiersArray, {
     filterAutoClaimDisabled: false,

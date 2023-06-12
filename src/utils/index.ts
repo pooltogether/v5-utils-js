@@ -3,5 +3,5 @@ export * from './getContract';
 export * from './getContracts';
 export { getTierPrizeAmounts } from './getTierPrizeAmounts';
 export { getWinnersClaims } from './getWinnersClaims';
-export { getSubgraphVaults } from './getSubgraphVaults';
+export { getSubgraphVaults, populateSubgraphVaultAccounts } from './getSubgraphVaults';
 export { getSubgraphClaimedPrizes } from './getSubgraphClaimedPrizes';
