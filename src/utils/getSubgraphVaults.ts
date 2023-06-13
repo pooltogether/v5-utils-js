@@ -1,7 +1,7 @@
 import { gql, GraphQLClient } from 'graphql-request';
 
 import { TWAB_CONTROLLER_SUBGRAPH_URIS } from './constants';
-import { Vault, VaultAccount } from '../types';
+import { Vault } from '../types';
 
 const GRAPH_QUERY_PAGE_SIZE = 1000;
 
@@ -53,23 +53,34 @@ export const populateSubgraphVaultAccounts = async (
     const vaultAddress = vault.id;
     const query = vaultAccountsQuery();
 
-    const variables = {
-      vaultAddress,
-      // first: GRAPH_QUERY_PAGE_SIZE,
-      // lastId: lastId || '',
-    };
-
-    // @ts-ignore: ignore types from GraphQL client lib
-    const accountsResponse: any = await client.request(query, variables).catch((e) => {
-      console.error(e.message);
-      throw e;
-    });
-
     if (!vault.accounts) {
       vault.accounts = [];
     }
 
-    vault.accounts = vault.accounts.concat(accountsResponse?.accounts || []);
+    let lastId = '';
+    while (true) {
+      const variables = {
+        vaultAddress,
+        first: GRAPH_QUERY_PAGE_SIZE,
+        lastId,
+      };
+
+      // @ts-ignore: ignore types from GraphQL client lib
+      const accountsResponse: any = await client.request(query, variables).catch((e) => {
+        console.error(e.message);
+        throw e;
+      });
+      const newAccounts = accountsResponse?.accounts || [];
+
+      vault.accounts = vault.accounts.concat(newAccounts);
+
+      const numberOfResults = newAccounts.length;
+      if (numberOfResults < GRAPH_QUERY_PAGE_SIZE) {
+        break;
+      }
+
+      lastId = newAccounts[newAccounts.length - 1].id;
+    }
   }
 
   return vaults;
@@ -87,8 +98,8 @@ const vaultsQuery = () => {
 
 const vaultAccountsQuery = () => {
   return gql`
-    query drawQuery($vaultAddress: String!) {
-      accounts(where: { vault_: { id: $vaultAddress } }, first: 1000) {
+    query drawQuery($first: Int!, $lastId: String, $vaultAddress: String!) {
+      accounts(first: $first, where: { id_gt: $lastId, vault_: { id: $vaultAddress } }) {
         id
       }
     }
