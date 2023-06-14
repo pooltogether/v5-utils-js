@@ -1,9 +1,11 @@
+import { ethers } from 'ethers';
 import { Provider } from '@ethersproject/providers';
 import { ContractCallContext } from 'ethereum-multicall';
+import { MulticallWrapper } from 'ethers-multicall-provider';
 import * as _ from 'lodash';
 
 import { MulticallResults, ContractData, Claim, ContractsBlob, Vault } from '../types';
-import { getComplexMulticallResults } from './multicall';
+import { getComplexMulticallResults, getEthersMulticallProviderResults } from './multicall';
 
 interface GetWinnersClaimsOptions {
   filterAutoClaimDisabled: boolean;
@@ -25,42 +27,34 @@ export const getWinnersClaims = async (
   options: GetWinnersClaimsOptions,
 ): Promise<Claim[]> => {
   const prizePoolContractBlob = findPrizePoolInContracts(contracts);
-
-  const calls: ContractCallContext['calls'] = [];
-
-  // OPTIMIZE: Make sure user has balance before adding them to the read multicall
-  vaults.forEach((vault) => {
-    vault.accounts.forEach((account) => {
-      const address = account.id.split('-')[1];
-
-      tiersArray.forEach((tierNum) => {
-        calls.push({
-          reference: `${vault.id}-${address}-${tierNum}`,
-          methodName: 'isWinner',
-          methodParameters: [vault.id, address, tierNum],
-        });
-      });
-    });
-  });
-
   const prizePoolAddress: string | undefined = prizePoolContractBlob?.address;
 
-  const queries: ContractCallContext[] = [
-    {
-      reference: prizePoolAddress,
-      contractAddress: prizePoolAddress,
-      abi: prizePoolContractBlob.abi,
-      calls,
-    },
-  ];
-
-  const multicallResults: MulticallResults = await getComplexMulticallResults(
-    readProvider,
-    queries,
+  // @ts-ignore Provider == BaseProvider
+  const multicallProvider = MulticallWrapper.wrap(readProvider);
+  const prizePoolContract = new ethers.Contract(
+    prizePoolAddress,
+    prizePoolContractBlob.abi,
+    multicallProvider,
   );
 
+  let queries: Record<string, any> = {};
+
+  // OPTIMIZE: Make sure user has balance before adding them to the read multicall
+  for (let vault of vaults) {
+    for (let account of vault.accounts) {
+      const address = account.id.split('-')[1];
+
+      for (let tierNum of tiersArray) {
+        const key = `${vault.id}-${address}-${tierNum}`;
+        queries[key] = prizePoolContract.isWinner(vault.id, address, tierNum);
+      }
+    }
+  }
+
+  queries = await getEthersMulticallProviderResults(multicallProvider, queries);
+
   // Builds the array of claims
-  let claims = getClaims(prizePoolAddress, multicallResults);
+  let claims = getClaims(queries);
 
   // Filters out claims that don't have autoClaim enabled
   if (options.filterAutoClaimDisabled) {
@@ -78,19 +72,15 @@ export const getWinnersClaims = async (
   return claims;
 };
 
-const getClaims = (prizePoolAddress: string, multicallResults: MulticallResults): Claim[] => {
-  const claims: Claim[] = [];
+const getClaims = (queries: Record<string, any>): Claim[] => {
+  // Filter to only 'true' results of isWinner() calls
+  const filteredWinners = _.pickBy(queries, (object) => !!object);
 
-  Object.entries(multicallResults[prizePoolAddress]).forEach((vaultUserTierResult) => {
-    const key = vaultUserTierResult[0];
-    const value = vaultUserTierResult[1];
-    const isWinner = value[0];
+  // Push to claims array
+  const claims: Claim[] = Object.keys(filteredWinners).map((vaultUserTierResult) => {
+    const [vault, winner, tier] = vaultUserTierResult.split('-');
 
-    const [vault, winner, tier] = key.split('-');
-
-    if (isWinner) {
-      claims.push({ vault, tier: Number(tier), winner });
-    }
+    return { vault, tier: Number(tier), winner };
   });
 
   return claims;

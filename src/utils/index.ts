@@ -5,3 +5,8 @@ export { getTierPrizeAmounts } from './getTierPrizeAmounts';
 export { getWinnersClaims } from './getWinnersClaims';
 export { getSubgraphVaults, populateSubgraphVaultAccounts } from './getSubgraphVaults';
 export { getSubgraphClaimedPrizes } from './getSubgraphClaimedPrizes';
+export {
+  getMulticallResults,
+  getComplexMulticallResults,
+  getEthersMulticallProviderResults,
+} from './multicall';
