@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { ContractsBlob } from '../types';
+import { ContractData, ContractsBlob } from '../types';
 
 // Returns all the contracts that match the params by name, chain, and contract version
 export function getContracts(
@@ -36,3 +36,31 @@ export function getContracts(
     return contractsArray;
   }
 }
+
+export const findPrizePoolInContracts = (contracts: ContractsBlob) => {
+  const prizePoolContractBlob = contracts.contracts.find(
+    (contract) => contract.type === 'PrizePool',
+  );
+  if (!prizePoolContractBlob) {
+    throw new Error('Contracts: No prize pool found in provided contracts blob');
+  }
+
+  return prizePoolContractBlob;
+};
+
+export const findVaultContractBlobInContracts = (
+  contracts: ContractsBlob,
+  vaultAddress: string,
+) => {
+  const vaultContractBlob = contracts.contracts.find(
+    (contract: ContractData) =>
+      contract.type === 'Vault' && contract.address.toLowerCase() === vaultAddress.toLowerCase(),
+  );
+  if (!vaultContractBlob) {
+    throw new Error(
+      `Contracts: No vault found in provided contracts blob with address: ${vaultAddress}`,
+    );
+  }
+
+  return vaultContractBlob;
+};

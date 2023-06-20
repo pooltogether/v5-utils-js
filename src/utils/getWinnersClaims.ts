@@ -4,7 +4,8 @@ import { ContractCallContext } from 'ethereum-multicall';
 import { MulticallWrapper } from 'ethers-multicall-provider';
 import * as _ from 'lodash';
 
-import { MulticallResults, ContractData, Claim, ContractsBlob, Vault } from '../types';
+import { MulticallResults, Claim, ContractsBlob, Vault } from '../types';
+import { findVaultContractBlobInContracts, findPrizePoolInContracts } from '../utils';
 import { getComplexMulticallResults, getEthersMulticallProviderResults } from './multicall';
 
 interface GetWinnersClaimsOptions {
@@ -41,17 +42,30 @@ export const getWinnersClaims = async (
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall
   for (let vault of vaults) {
-    for (let account of vault.accounts) {
+    // console.log('# Processing vault:', vault.id);
+    let toQuery: Record<string, any> = {};
+
+    const accountsSlice = vault.accounts.slice(0, 500);
+    for (let account of accountsSlice) {
       const address = account.id.split('-')[1];
+      // console.log('address', address);
 
       for (let tierNum of tiersArray) {
         const key = `${vault.id}-${address}-${tierNum}`;
-        queries[key] = prizePoolContract.isWinner(vault.id, address, tierNum);
+        // console.log('key', key);
+        toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum);
       }
     }
+
+    console.log('toQuery');
+    console.log(Object.keys(toQuery).length);
+
+    const results = await getEthersMulticallProviderResults(multicallProvider, toQuery);
+    queries = { ...queries, ...results };
   }
 
-  queries = await getEthersMulticallProviderResults(multicallProvider, queries);
+  console.log('# of Queries:');
+  console.log(Object.values(queries).length);
 
   // Builds the array of claims
   let claims = getClaims(queries);
@@ -139,29 +153,4 @@ const filterAutoClaimDisabledForClaims = async (
   });
 
   return claims;
-};
-
-const findPrizePoolInContracts = (contracts: ContractsBlob) => {
-  const prizePoolContractBlob = contracts.contracts.find(
-    (contract) => contract.type === 'PrizePool',
-  );
-  if (!prizePoolContractBlob) {
-    throw new Error('Contracts: No prize pool found in provided contracts blob');
-  }
-
-  return prizePoolContractBlob;
-};
-
-const findVaultContractBlobInContracts = (contracts: ContractsBlob, vaultAddress: string) => {
-  const vaultContractBlob = contracts.contracts.find(
-    (contract: ContractData) =>
-      contract.type === 'Vault' && contract.address.toLowerCase() === vaultAddress.toLowerCase(),
-  );
-  if (!vaultContractBlob) {
-    throw new Error(
-      `Contracts: No vault found in provided contracts blob with address: ${vaultAddress}`,
-    );
-  }
-
-  return vaultContractBlob;
 };
