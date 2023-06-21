@@ -42,17 +42,14 @@ export const getWinnersClaims = async (
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall
   for (let vault of vaults) {
-    // console.log('# Processing vault:', vault.id);
+    console.log('# Processing vault:', vault.id);
     let toQuery: Record<string, any> = {};
 
-    const accountsSlice = vault.accounts.slice(0, 500);
-    for (let account of accountsSlice) {
+    for (let account of vault.accounts) {
       const address = account.id.split('-')[1];
-      // console.log('address', address);
 
       for (let tierNum of tiersArray) {
         const key = `${vault.id}-${address}-${tierNum}`;
-        // console.log('key', key);
         toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum);
       }
     }
