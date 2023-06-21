@@ -9,7 +9,7 @@ import { findVaultContractBlobInContracts, findPrizePoolInContracts } from '../u
 import { getComplexMulticallResults, getEthersMulticallProviderResults } from './multicall';
 
 interface GetWinnersClaimsOptions {
-  filterAutoClaimDisabled: boolean;
+  filterAutoClaimDisabled?: boolean;
 }
 
 /**

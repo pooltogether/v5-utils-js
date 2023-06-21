@@ -25,12 +25,12 @@ export const getPrizePoolSubgraphClient = (chainId: number, fetch?: any) => {
  */
 export const getSubgraphClaimedPrizes = async (
   chainId: number,
-  drawId: string,
+  drawId: number,
 ): Promise<ClaimedPrize[]> => {
   const client = getPrizePoolSubgraphClient(chainId);
 
   const query = drawQuery();
-  const variables = { id: drawId };
+  const variables = { id: drawId.toString() };
 
   // @ts-ignore: ignore types from GraphQL client lib
   const claimedPrizesResponse: any = await client.request(query, variables).catch((e) => {
