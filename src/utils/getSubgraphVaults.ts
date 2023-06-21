@@ -12,10 +12,12 @@ export const getTwabControllerSubgraphUri = (chainId: number) => {
   return TWAB_CONTROLLER_SUBGRAPH_URIS[chainId];
 };
 
-export const getTwabControllerSubgraphClient = (chainId: number) => {
+export const getTwabControllerSubgraphClient = (chainId: number, fetch?: any) => {
   const uri = getTwabControllerSubgraphUri(chainId);
 
-  return new GraphQLClient(uri);
+  return new GraphQLClient(uri, {
+    fetch,
+  });
 };
 
 /**

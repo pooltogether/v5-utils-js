@@ -10,10 +10,12 @@ export const getPrizePoolSubgraphUri = (chainId: number) => {
   return PRIZE_POOL_SUBGRAPH_URIS[chainId];
 };
 
-export const getPrizePoolSubgraphClient = (chainId: number) => {
+export const getPrizePoolSubgraphClient = (chainId: number, fetch?: any) => {
   const uri = getPrizePoolSubgraphUri(chainId);
 
-  return new GraphQLClient(uri);
+  return new GraphQLClient(uri, {
+    fetch,
+  });
 };
 
 /**
