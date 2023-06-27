@@ -47,9 +47,13 @@ export const getPrizePoolInfo = async (
 
   // Tiers Range Array
   const tiersRangeArray = Array.from(
-    { length: prizePoolInfo.numberOfTiers + 1 },
+    { length: prizePoolInfo.numberOfTiers },
     (value, index) => index,
   );
+  // const tiersRangeArray = Array.from(
+  //   { length: prizePoolInfo.numberOfTiers + 1 },
+  //   (value, index) => index,
+  // );
   prizePoolInfo.tiersRangeArray = tiersRangeArray;
 
   return prizePoolInfo;

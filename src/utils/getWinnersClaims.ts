@@ -48,9 +48,12 @@ export const getWinnersClaims = async (
       const address = account.id.split('-')[1];
 
       for (let tierNum of prizePoolInfo.tiersRangeArray) {
-        const key = `${vault.id}-${address}-${tierNum}`;
-        const prizeIndices = [0];
-        toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum, prizeIndices);
+        const prizeIndices: number[] = buildPrizeIndicesRangeArray(prizePoolInfo, tierNum);
+
+        for (let prizeIndex of prizeIndices) {
+          const key = `${vault.id}-${address}-${tierNum}-${prizeIndex}`;
+          toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum, prizeIndex);
+        }
       }
     }
 
@@ -150,4 +153,11 @@ const filterAutoClaimDisabledForClaims = async (
   });
 
   return claims;
+};
+
+const buildPrizeIndicesRangeArray = (prizePoolInfo: PrizePoolInfo, tierNum: number): number[] => {
+  const tierPrizeCount = prizePoolInfo.tierPrizeCounts[tierNum.toString()];
+  const array = Array.from({ length: tierPrizeCount }, (value, index) => index);
+
+  return array;
 };
