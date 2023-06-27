@@ -66,7 +66,7 @@ export interface MulticallResults {
   };
 }
 
-export interface Amounts {
+export interface TierPrizeAmounts {
   [tier: string]: BigNumber;
 }
 
@@ -75,4 +75,14 @@ export interface ClaimedPrize {
   payout: string;
   fee: string;
   timestamp: string;
+}
+
+export interface PrizePoolInfo {
+  drawId: number;
+  numberOfTiers: number;
+  tiersRangeArray: number[];
+  tierPrizeCounts: {
+    [tierNum: string]: number;
+  };
+  tierPrizeAmounts?: TierPrizeAmounts;
 }

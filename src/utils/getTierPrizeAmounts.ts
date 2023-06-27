@@ -1,7 +1,7 @@
 import { Provider } from '@ethersproject/providers';
 import { ContractCallContext } from 'ethereum-multicall';
 
-import { MulticallResults, ContractsBlob, Amounts } from '../types';
+import { MulticallResults, ContractsBlob, TierPrizeAmounts } from '../types';
 import { getComplexMulticallResults } from './multicall';
 
 /**
@@ -15,7 +15,7 @@ export const getTierPrizeAmounts = async (
   readProvider: Provider,
   contracts: ContractsBlob,
   tiersArray: number[],
-): Promise<Amounts> => {
+): Promise<TierPrizeAmounts> => {
   const prizePoolContractBlob = contracts.contracts.find(
     (contract) => contract.type === 'PrizePool',
   );
@@ -52,8 +52,11 @@ export const getTierPrizeAmounts = async (
   return getTierAmounts(prizePoolAddress, multicallResults);
 };
 
-const getTierAmounts = (prizePoolAddress: string, multicallResults: MulticallResults): Amounts => {
-  const amounts: Amounts = {};
+const getTierAmounts = (
+  prizePoolAddress: string,
+  multicallResults: MulticallResults,
+): TierPrizeAmounts => {
+  const amounts: TierPrizeAmounts = {};
 
   Object.entries(multicallResults[prizePoolAddress]).forEach((tierResult) => {
     const [key, value] = tierResult;

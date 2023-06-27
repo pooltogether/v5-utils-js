@@ -4,7 +4,7 @@ import { ContractCallContext } from 'ethereum-multicall';
 import { MulticallWrapper } from 'ethers-multicall-provider';
 import * as _ from 'lodash';
 
-import { MulticallResults, Claim, ContractsBlob, Vault } from '../types';
+import { MulticallResults, Claim, ContractsBlob, Vault, PrizePoolInfo } from '../types';
 import { findVaultContractBlobInContracts, findPrizePoolInContracts } from '../utils';
 import { getComplexMulticallResults, getEthersMulticallProviderResults } from './multicall';
 
@@ -17,14 +17,13 @@ interface GetWinnersClaimsOptions {
  * @param readProvider a read-capable provider for the chain that should be queried
  * @param contracts blob of contracts to pull PrizePool abi/etc from
  * @param vaults vaults to query through
- * @param tiersArray an easily iterable range of numbers for each tier available (ie. [0, 1, 2])
  * @returns
  */
 export const getWinnersClaims = async (
   readProvider: Provider,
+  prizePoolInfo: PrizePoolInfo,
   contracts: ContractsBlob,
   vaults: Vault[],
-  tiersArray: number[],
   options: GetWinnersClaimsOptions,
 ): Promise<Claim[]> => {
   const prizePoolContractBlob = findPrizePoolInContracts(contracts);
@@ -48,9 +47,10 @@ export const getWinnersClaims = async (
     for (let account of vault.accounts) {
       const address = account.id.split('-')[1];
 
-      for (let tierNum of tiersArray) {
+      for (let tierNum of prizePoolInfo.tiersRangeArray) {
         const key = `${vault.id}-${address}-${tierNum}`;
-        toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum);
+        const prizeIndices = [0];
+        toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum, prizeIndices);
       }
     }
 
