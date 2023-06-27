@@ -4,7 +4,7 @@ import { getSubgraphVaults, populateSubgraphVaultAccounts } from '../utils/getSu
 import { getSubgraphClaimedPrizes } from '../utils/getSubgraphClaimedPrizes';
 import { getWinnersClaims } from '../utils/getWinnersClaims';
 import { getPrizePoolInfo } from '../utils/getPrizePoolInfo';
-import { ContractsBlob, Claim, ClaimedPrize } from '../types';
+import { ContractsBlob, Claim, ClaimedPrize, PrizePoolInfo } from '../types';
 
 /**
  * Finds out which of the accounts in each vault are winners for the last draw and formats
@@ -16,11 +16,10 @@ export async function computeDrawWinners(
   readProvider: Provider,
   contracts: ContractsBlob,
   chainId: number,
-  drawId: number,
   filterAutoClaimDisabled?: boolean,
 ): Promise<Claim[]> {
   // #1. Collect prize pool info
-  const prizePoolInfo = await getPrizePoolInfo(readProvider, contracts);
+  const prizePoolInfo: PrizePoolInfo = await getPrizePoolInfo(readProvider, contracts);
 
   // #2. Collect all vaults
   let vaults = await getSubgraphVaults(chainId);
@@ -28,33 +27,29 @@ export async function computeDrawWinners(
     throw new Error('Claimer: No vaults found in subgraph');
   }
 
-  console.log('');
-  console.log('prizePoolInfo');
-  console.log(prizePoolInfo);
-
-  console.log('');
-  console.log('vaults');
-  console.log(vaults);
-
   // #3. Page through and concat all accounts for all vaults
   vaults = await populateSubgraphVaultAccounts(chainId, vaults);
 
-  console.log('');
-  console.log('vaults');
-  console.log(vaults);
   // #4. Determine winners for last draw
   let claims: Claim[] = await getWinnersClaims(readProvider, prizePoolInfo, contracts, vaults, {
     filterAutoClaimDisabled,
   });
+  console.log('');
+  console.log('claims');
+  console.log(claims);
 
   // #5. Cross-reference prizes claimed subgraph to flag if a claim has been claimed or not
-  // claims = await flagClaimed(chainId, claims, drawId);
+  claims = await flagClaimed(chainId, claims, prizePoolInfo);
 
-  // return claims;
-  return [];
+  return claims;
 }
 
-const flagClaimed = async (chainId: number, claims: Claim[], drawId: number): Promise<Claim[]> => {
+const flagClaimed = async (
+  chainId: number,
+  claims: Claim[],
+  prizePoolInfo: PrizePoolInfo,
+): Promise<Claim[]> => {
+  const drawId = prizePoolInfo.drawId;
   const claimedPrizes: ClaimedPrize[] = await getSubgraphClaimedPrizes(chainId, drawId);
 
   const formattedClaimedPrizes = claimedPrizes.map((claimedPrize) => {

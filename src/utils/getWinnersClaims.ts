@@ -4,7 +4,14 @@ import { ContractCallContext } from 'ethereum-multicall';
 import { MulticallWrapper } from 'ethers-multicall-provider';
 import * as _ from 'lodash';
 
-import { MulticallResults, Claim, ContractsBlob, Vault, PrizePoolInfo } from '../types';
+import {
+  MulticallResults,
+  Claim,
+  ContractsBlob,
+  Vault,
+  PrizePoolInfo,
+  TierPrizeData,
+} from '../types';
 import { findVaultContractBlobInContracts, findPrizePoolInContracts } from '../utils';
 import { getComplexMulticallResults, getEthersMulticallProviderResults } from './multicall';
 
@@ -41,31 +48,37 @@ export const getWinnersClaims = async (
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall
   for (let vault of vaults) {
+    console.log('');
     console.log('# Processing vault:', vault.id);
     let toQuery: Record<string, any> = {};
+
+    console.log(`${vault.accounts.length} accounts.`);
+    // console.log(`${prizePoolInfo.tiersRangeArray.length} tiers.`);
 
     for (let account of vault.accounts) {
       const address = account.id.split('-')[1];
 
       for (let tierNum of prizePoolInfo.tiersRangeArray) {
-        const prizeIndices: number[] = buildPrizeIndicesRangeArray(prizePoolInfo, tierNum);
+        const tier: TierPrizeData = prizePoolInfo.tierPrizeData[tierNum];
+        // console.log(`${tier.count} prizes for tier ${tierNum}.`);
 
-        for (let prizeIndex of prizeIndices) {
+        for (let prizeIndex of tier.rangeArray) {
           const key = `${vault.id}-${address}-${tierNum}-${prizeIndex}`;
           toQuery[key] = prizePoolContract.isWinner(vault.id, address, tierNum, prizeIndex);
         }
       }
     }
 
-    console.log('toQuery');
-    console.log(Object.keys(toQuery).length);
+    // console.log('toQuery count:', Object.keys(toQuery).length);
 
     const results = await getEthersMulticallProviderResults(multicallProvider, toQuery);
     queries = { ...queries, ...results };
   }
 
-  console.log('# of Queries:');
-  console.log(Object.values(queries).length);
+  // console.log('');
+  // console.log('');
+  // console.log('Total # of Queries:');
+  // console.log(Object.values(queries).length);
 
   // Builds the array of claims
   let claims = getClaims(queries);
@@ -153,11 +166,4 @@ const filterAutoClaimDisabledForClaims = async (
   });
 
   return claims;
-};
-
-const buildPrizeIndicesRangeArray = (prizePoolInfo: PrizePoolInfo, tierNum: number): number[] => {
-  const tierPrizeCount = prizePoolInfo.tierPrizeCounts[tierNum.toString()];
-  const array = Array.from({ length: tierPrizeCount }, (value, index) => index);
-
-  return array;
 };

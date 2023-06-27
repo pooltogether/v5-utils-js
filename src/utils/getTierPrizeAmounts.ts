@@ -1,20 +1,20 @@
 import { Provider } from '@ethersproject/providers';
 import { ContractCallContext } from 'ethereum-multicall';
 
-import { MulticallResults, ContractsBlob, TierPrizeAmounts } from '../types';
+import { MulticallResults, ContractsBlob, PrizePoolInfo, TierPrizeAmounts } from '../types';
 import { getComplexMulticallResults } from './multicall';
 
 /**
  * Returns tier prize amounts
  * @param readProvider a read-capable provider for the chain that should be queried
  * @param contracts blob of contracts to pull PrizePool abi/etc from
- * @param tiersArray an easily iterable range of numbers for each tier available (ie. [0, 1, 2])
+ * @param prizePoolInfo PrizePoolInfo type, data about previous draw prizes and tiers
  * @returns
  */
 export const getTierPrizeAmounts = async (
   readProvider: Provider,
   contracts: ContractsBlob,
-  tiersArray: number[],
+  prizePoolInfo: PrizePoolInfo,
 ): Promise<TierPrizeAmounts> => {
   const prizePoolContractBlob = contracts.contracts.find(
     (contract) => contract.type === 'PrizePool',
@@ -27,7 +27,7 @@ export const getTierPrizeAmounts = async (
 
   const calls: ContractCallContext['calls'] = [];
 
-  tiersArray.forEach((tierNum) => {
+  prizePoolInfo.tiersRangeArray.forEach((tierNum) => {
     calls.push({
       reference: `${tierNum}`,
       methodName: 'calculatePrizeSize',

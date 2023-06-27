@@ -63,13 +63,13 @@ main();
 
 # 🏆 Quickstart (Draw Results)
 
-Functions like `computeDrawWinners(provider, contracts, chainId, tiersArray, drawId)` compute and return JSON of winners for each tier of a prize pool, grouped by vault.
+`computeDrawWinners(provider, contracts, chainId, filterAutoClaimDisabled?: boolean)` computes and returns a JSON blob of winner's Claim objects for each tier of a prize pool, grouped by vault for the previous draw.
 
 ```ts
 import { computeDrawWinners } from "@pooltogether/v5-utils-js";
 
 // Compute Winners for the last Draw
-const winners = computeDrawWinners(provider, contracts, chainId, tiersArray, drawId);
+const winners = computeDrawWinners(provider, contracts, chainId, filterAutoClaimDisabled?: boolean);
 ```
 
 # 📖 Documentation
