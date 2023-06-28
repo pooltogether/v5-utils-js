@@ -105,9 +105,9 @@ const getClaims = (queries: Record<string, any>): Claim[] => {
 
   // Push to claims array
   const claims: Claim[] = Object.keys(filteredWinners).map((vaultUserTierResult) => {
-    const [vault, winner, tier] = vaultUserTierResult.split('-');
+    const [vault, winner, tier, prizeIndex] = vaultUserTierResult.split('-');
 
-    return { vault, tier: Number(tier), winner };
+    return { vault, winner, tier: Number(tier), prizeIndex: Number(prizeIndex) };
   });
 
   return claims;
@@ -135,10 +135,10 @@ const filterAutoClaimDisabledForClaims = async (
 
     const calls: ContractCallContext['calls'] = [];
     for (const claim of vaultClaims) {
-      const { winner, tier } = claim;
+      const { winner, tier, prizeIndex } = claim;
 
       calls.push({
-        reference: `${vaultAddress}-${winner}-${tier}`,
+        reference: `${vaultAddress}-${winner}-${tier}-${prizeIndex}`,
         methodName: 'autoClaimDisabled',
         methodParameters: [winner],
       });
@@ -159,8 +159,8 @@ const filterAutoClaimDisabledForClaims = async (
 
   // Actually filter the original claims with the claims where auto-claim has been disabled
   claims = claims.filter((claim: Claim) => {
-    const { vault, winner, tier } = claim;
-    const compositeKey = `${vault}-${winner}-${tier}`;
+    const { vault, winner, tier, prizeIndex } = claim;
+    const compositeKey = `${vault}-${winner}-${tier}-${prizeIndex}`;
 
     return !multicallResults[vault][compositeKey][0];
   });

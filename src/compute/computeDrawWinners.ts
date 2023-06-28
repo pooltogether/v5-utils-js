@@ -34,9 +34,6 @@ export async function computeDrawWinners(
   let claims: Claim[] = await getWinnersClaims(readProvider, prizePoolInfo, contracts, vaults, {
     filterAutoClaimDisabled,
   });
-  console.log('');
-  console.log('claims');
-  console.log(claims);
 
   // #5. Cross-reference prizes claimed subgraph to flag if a claim has been claimed or not
   claims = await flagClaimed(chainId, claims, prizePoolInfo);

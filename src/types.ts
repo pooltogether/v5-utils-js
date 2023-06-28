@@ -57,6 +57,7 @@ export interface Claim {
   vault: string;
   winner: string;
   tier: number;
+  prizeIndex: number;
   claimed?: boolean;
 }
 
