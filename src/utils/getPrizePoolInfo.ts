@@ -19,7 +19,6 @@ export const getPrizePoolInfo = async (
     numberOfTiers: -1,
     tiersRangeArray: [],
     tierPrizeData: {},
-    tierPrizeAmounts: {},
   };
 
   const prizePoolContractBlob = findPrizePoolInContracts(contracts);
@@ -45,12 +44,12 @@ export const getPrizePoolInfo = async (
   );
   prizePoolInfo.tiersRangeArray = tiersRangeArray;
 
-  // Tier Prize Counts
+  // Tier Data
   for (let tierNum = 0; tierNum < prizePoolInfo.numberOfTiers; tierNum++) {
     const tier: TierPrizeData = (prizePoolInfo.tierPrizeData[tierNum.toString()] = {
       count: -1,
       rangeArray: [],
-      amounts: BigNumber.from(0),
+      amount: BigNumber.from(0),
     });
 
     const prizeCount = await prizePoolContract.getTierPrizeCount(tierNum);
@@ -58,6 +57,9 @@ export const getPrizePoolInfo = async (
 
     // Prize Indices Range Array
     tier.rangeArray = buildPrizeIndicesRangeArray(tier);
+
+    // Prize Amount
+    tier.amount = await prizePoolContract.getTierPrizeSize(tierNum);
   }
 
   return prizePoolInfo;

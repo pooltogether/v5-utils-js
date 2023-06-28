@@ -66,10 +66,6 @@ export interface MulticallResults {
   };
 }
 
-export interface TierPrizeAmounts {
-  [tier: string]: BigNumber;
-}
-
 export interface ClaimedPrize {
   id: string;
   payout: string;
@@ -80,7 +76,7 @@ export interface ClaimedPrize {
 export interface TierPrizeData {
   count: number;
   rangeArray: number[]; // an easily iterable range of numbers for each tier's prize indices
-  amounts: BigNumber;
+  amount: BigNumber;
 }
 
 export interface PrizePoolInfo {
@@ -90,5 +86,4 @@ export interface PrizePoolInfo {
   tierPrizeData: {
     [tierNum: string]: TierPrizeData;
   };
-  tierPrizeAmounts?: TierPrizeAmounts;
 }

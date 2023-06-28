@@ -1,7 +1,7 @@
 export * from './constants';
 export * from './getContract';
 export * from './getContracts';
-export { getTierPrizeAmounts } from './getTierPrizeAmounts';
+export { getPrizePoolInfo } from './getPrizePoolInfo';
 export { getWinnersClaims } from './getWinnersClaims';
 export { getSubgraphVaults, populateSubgraphVaultAccounts } from './getSubgraphVaults';
 export { getSubgraphClaimedPrizes } from './getSubgraphClaimedPrizes';
