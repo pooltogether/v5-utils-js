@@ -48,11 +48,11 @@ export const getWinnersClaims = async (
 
   // OPTIMIZE: Make sure user has balance before adding them to the read multicall
   for (let vault of vaults) {
-    console.log('');
-    console.log('# Processing vault:', vault.id);
+    // console.log('');
+    // console.log('# Processing vault:', vault.id);
     let toQuery: Record<string, any> = {};
 
-    console.log(`${vault.accounts.length} accounts.`);
+    // console.log(`${vault.accounts.length} accounts.`);
     // console.log(`${prizePoolInfo.tiersRangeArray.length} tiers.`);
 
     for (let account of vault.accounts) {

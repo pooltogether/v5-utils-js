@@ -1,10 +1,10 @@
 import { Provider } from '@ethersproject/providers';
 
 import { getSubgraphVaults, populateSubgraphVaultAccounts } from '../utils/getSubgraphVaults';
-import { getSubgraphClaimedPrizes } from '../utils/getSubgraphClaimedPrizes';
+import { getRpcClaimedPrizes } from '../utils/getRpcClaimedPrizes';
 import { getWinnersClaims } from '../utils/getWinnersClaims';
 import { getPrizePoolInfo } from '../utils/getPrizePoolInfo';
-import { ContractsBlob, Claim, ClaimedPrize, PrizePoolInfo } from '../types';
+import { ContractsBlob, Claim, PrizePoolInfo } from '../types';
 
 /**
  * Finds out which of the accounts in each vault are winners for the last draw and formats
@@ -36,31 +36,46 @@ export async function computeDrawWinners(
   });
 
   // #5. Cross-reference prizes claimed subgraph to flag if a claim has been claimed or not
-  claims = await flagClaimed(chainId, claims, prizePoolInfo);
+  claims = await flagClaimedRpc(readProvider, contracts, claims);
 
   return claims;
 }
 
-const flagClaimed = async (
-  chainId: number,
-  claims: Claim[],
-  prizePoolInfo: PrizePoolInfo,
-): Promise<Claim[]> => {
-  const drawId = prizePoolInfo.drawId;
-  const claimedPrizes: ClaimedPrize[] = await getSubgraphClaimedPrizes(chainId, drawId);
+// const flagClaimedSubgraph = async (
+//   chainId: number,
+//   claims: Claim[],
+//   prizePoolInfo: PrizePoolInfo,
+// ): Promise<Claim[]> => {
+//   const drawId = prizePoolInfo.drawId;
+//   const claimedPrizes: ClaimedPrize[] = await getSubgraphClaimedPrizes(chainId, drawId);
 
-  const formattedClaimedPrizes = claimedPrizes.map((claimedPrize) => {
-    // From Subgraph, `id` is:
-    // vault ID + winner ID + draw ID + tier
-    const [vault, winner, draw, tier] = claimedPrize.id.split('-');
-    return `${vault}-${winner}-${tier}`;
-  });
+//   const formattedClaimedPrizes = claimedPrizes.map((claimedPrize) => {
+//     // From Subgraph, `id` is:
+//     // vault ID + winner ID + draw ID + tier
+//     const [vault, winner, draw, tier] = claimedPrize.id.split('-');
+//     return `${vault}-${winner}-${tier}`;
+//   });
+
+//   for (let claim of claims) {
+//     claim.claimed = formattedClaimedPrizes.includes(claimCompositeKey(claim));
+//   }
+
+//   return claims;
+// };
+
+const flagClaimedRpc = async (
+  readProvider: Provider,
+  contracts: ContractsBlob,
+  claims: Claim[],
+): Promise<Claim[]> => {
+  const claimedPrizes: string[] = await getRpcClaimedPrizes(readProvider, contracts, claims);
 
   for (let claim of claims) {
-    claim.claimed = formattedClaimedPrizes.includes(claimCompositeKey(claim));
+    claim.claimed = claimedPrizes.includes(claimSimpleCompositeKey(claim));
   }
 
   return claims;
 };
 
-const claimCompositeKey = (claim: Claim) => `${claim.vault}-${claim.winner}-${claim.tier}`;
+const claimSimpleCompositeKey = (claim: Claim) =>
+  `${claim.vault}-${claim.winner}-${claim.tier}-${claim.prizeIndex}`;

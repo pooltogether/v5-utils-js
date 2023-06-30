@@ -74,6 +74,10 @@ export interface ClaimedPrize {
   timestamp: string;
 }
 
+export interface ClaimedPrizeSimple {
+  id: string;
+}
+
 export interface TierPrizeData {
   count: number;
   rangeArray: number[]; // an easily iterable range of numbers for each tier's prize indices
